@@ -116,7 +116,7 @@ jar {
     manifest {
         attributes("Main-Class": "meteordevelopment.meteorclient.Main")
     }
-    archiveName 'meteor.jar'
+    archiveName = 'meteor.jar'
 }
 
 java {
