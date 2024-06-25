@@ -36,9 +36,9 @@ jobs:
 
       - name: Build
         run: ./gradlew build -Pcommit=${{ github.sha }} -Pdevbuild=${{ steps.dev-build.outputs.number }}
-        
-      - name: upload
-        uses: actions/upload-artifact@v4
+
+      - name: Upload Tar Artifact
+        uses: alehechka/upload-tartifact@v2
         with:
-          name: build
-          path: builds/meteor.jar
+          path: builds
+            
