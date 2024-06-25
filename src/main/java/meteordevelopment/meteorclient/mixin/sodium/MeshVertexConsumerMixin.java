@@ -30,6 +30,7 @@ public abstract class MeshVertexConsumerMixin implements VertexConsumer, VertexB
             float z = MemoryUtil.memGetFloat(positionPtr + 8);
 
             vertex(x, y, z);
+            next();
         }
     }
 }

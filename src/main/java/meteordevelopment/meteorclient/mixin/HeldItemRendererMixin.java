@@ -15,7 +15,6 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -87,7 +86,7 @@ public abstract class HeldItemRendererMixin {
     }
 
     @Inject(method = "applyEatOrDrinkTransformation", at = @At(value = "INVOKE", target = "Ljava/lang/Math;pow(DD)D", shift = At.Shift.BEFORE), cancellable = true)
-    private void cancelTransformations(MatrixStack matrices, float tickDelta, Arm arm, ItemStack stack, PlayerEntity player, CallbackInfo ci) {
+    private void cancelTransformations(MatrixStack matrices, float tickDelta, Arm arm, ItemStack stack, CallbackInfo ci) {
         if (Modules.get().get(HandView.class).disableFoodAnimation()) ci.cancel();
     }
 

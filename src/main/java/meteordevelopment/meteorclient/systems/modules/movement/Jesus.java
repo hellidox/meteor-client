@@ -21,8 +21,8 @@ import meteordevelopment.meteorclient.utils.entity.EntityUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.enchantment.ProtectionEnchantment;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.network.packet.Packet;
@@ -323,13 +323,14 @@ public class Jesus extends Module {
 
     private boolean lavaIsSafe() {
         if (!dipIfFireResistant.get()) return false;
-        return mc.player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE) && (mc.player.getStatusEffect(StatusEffects.FIRE_RESISTANCE).getDuration() > (15 * 20 * mc.player.getAttributeValue(EntityAttributes.GENERIC_BURNING_TIME)));
-        // todo verify
+        return mc.player.hasStatusEffect(StatusEffects.FIRE_RESISTANCE) && (mc.player.getStatusEffect(StatusEffects.FIRE_RESISTANCE).getDuration() > ProtectionEnchantment.transformFireDuration(mc.player, 15 * 20));
     }
 
     private boolean isOverLiquid() {
         boolean foundLiquid = false;
         boolean foundSolid = false;
+
+
 
         List<Box> blockCollisions = Streams.stream(mc.world.getBlockCollisions(mc.player, mc.player.getBoundingBox().offset(0, -0.5, 0)))
             .map(VoxelShape::getBoundingBox)

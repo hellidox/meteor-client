@@ -95,7 +95,7 @@ public abstract class EndCrystalEntityRendererMixin {
 
         if (module.renderCore.get()) {
             Color color = module.crystalsCoreColor.get();
-            core.render(matrices, vertices, light, overlay, color.getPacked());
+            core.render(matrices, vertices, light, overlay, color.r/255f, color.g/255f, color.b/255f, color.a/255f);
         }
     }
 
@@ -110,7 +110,7 @@ public abstract class EndCrystalEntityRendererMixin {
 
         if (module.renderFrame1.get()) {
             Color color = module.crystalsFrame1Color.get();
-            frame.render(matrices, vertices, light, overlay, color.getPacked());
+            frame.render(matrices, vertices, light, overlay, color.r/255f, color.g/255f, color.b/255f, color.a/255f);
         }
     }
 
@@ -124,7 +124,7 @@ public abstract class EndCrystalEntityRendererMixin {
 
         if (module.renderFrame2.get()) {
             Color color = module.crystalsFrame2Color.get();
-            frame.render(matrices, vertices, light, overlay, color.getPacked());
+            frame.render(matrices, vertices, light, overlay, color.r/255f, color.g/255f, color.b/255f, color.a/255f);
         }
     }
 }

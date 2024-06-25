@@ -12,10 +12,9 @@ import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
-import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.component.DataComponentTypes;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -28,7 +27,7 @@ public class AutoMend extends Module {
     private final Setting<List<Item>> blacklist = sgGeneral.add(new ItemListSetting.Builder()
         .name("blacklist")
         .description("Item blacklist.")
-        .filter(item -> item.getComponents().get(DataComponentTypes.DAMAGE) != null)
+        .filter(Item::isDamageable)
         .build()
     );
 
@@ -74,7 +73,8 @@ public class AutoMend extends Module {
 
                 toggle();
             }
-        } else {
+        }
+        else {
             InvUtils.move().from(slot).toOffhand();
             didMove = true;
         }
@@ -85,7 +85,7 @@ public class AutoMend extends Module {
 
         if (itemStack.isEmpty()) return false;
 
-        if (Utils.hasEnchantments(itemStack, Enchantments.MENDING)) {
+        if (EnchantmentHelper.getLevel(Enchantments.MENDING, itemStack) > 0) {
             return itemStack.getDamage() != 0;
         }
 
@@ -97,7 +97,7 @@ public class AutoMend extends Module {
             ItemStack itemStack = mc.player.getInventory().getStack(i);
             if (blacklist.get().contains(itemStack.getItem())) continue;
 
-            if (Utils.hasEnchantments(itemStack, Enchantments.MENDING) && itemStack.getDamage() > 0) {
+            if (EnchantmentHelper.getLevel(Enchantments.MENDING, itemStack) > 0 && itemStack.getDamage() > 0) {
                 return i;
             }
         }

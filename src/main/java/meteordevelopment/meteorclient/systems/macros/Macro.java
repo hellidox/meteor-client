@@ -29,6 +29,7 @@ public class Macro implements ISerializable<Macro> {
     public Setting<String> name = sgGeneral.add(new StringSetting.Builder()
         .name("name")
         .description("The name of the macro.")
+        .defaultValue("")
         .build()
     );
 

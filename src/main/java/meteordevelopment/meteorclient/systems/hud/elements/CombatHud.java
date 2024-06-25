@@ -6,9 +6,6 @@
 package meteordevelopment.meteorclient.systems.hud.elements;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.ObjectIntImmutablePair;
-import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 import meteordevelopment.meteorclient.renderer.Renderer2D;
 import meteordevelopment.meteorclient.renderer.text.TextRenderer;
 import meteordevelopment.meteorclient.settings.*;
@@ -26,7 +23,7 @@ import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.meteorclient.utils.render.color.Color;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.component.type.ItemEnchantmentsComponent;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.PlayerEntity;
@@ -34,13 +31,13 @@ import net.minecraft.item.BedItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.SwordItem;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.EnchantmentTags;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.math.MathHelper;
-import org.joml.Matrix4fStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
@@ -87,10 +84,10 @@ public class CombatHud extends HudElement {
         .build()
     );
 
-    private final Setting<Set<RegistryKey<Enchantment>>> displayedEnchantments = sgGeneral.add(new EnchantmentListSetting.Builder()
+    private final Setting<List<Enchantment>> displayedEnchantments = sgGeneral.add(new EnchantmentListSetting.Builder()
         .name("displayed-enchantments")
         .description("The enchantments that are shown on nametags.")
-        .vanillaDefaults()
+        .defaultValue(getDefaultEnchantments())
         .build()
     );
 
@@ -227,7 +224,7 @@ public class CombatHud extends HudElement {
                 (int) (y + (66 * scale.get())),
                 (int) (30 * scale.get()),
                 0,
-                -MathHelper.wrapDegrees(playerEntity.prevYaw + (playerEntity.getYaw() - playerEntity.prevYaw) * mc.getRenderTickCounter().getTickDelta(true)),
+                -MathHelper.wrapDegrees(playerEntity.prevYaw + (playerEntity.getYaw() - playerEntity.prevYaw) * mc.getTickDelta()),
                 -playerEntity.getPitch(),
                 playerEntity
             );
@@ -336,9 +333,9 @@ public class CombatHud extends HudElement {
             int slot = 5;
 
             // Drawing armor
-            Matrix4fStack matrices = RenderSystem.getModelViewStack();
+            MatrixStack matrices = RenderSystem.getModelViewStack();
 
-            matrices.pushMatrix();
+            matrices.push();
             matrices.scale(scale.get().floatValue(), scale.get().floatValue(), 1);
 
             x /= scale.get();
@@ -356,20 +353,21 @@ public class CombatHud extends HudElement {
 
                 armorY += 18;
 
-                ItemEnchantmentsComponent enchantments = EnchantmentHelper.getEnchantments(itemStack);
-                List<ObjectIntPair<RegistryEntry<Enchantment>>> enchantmentsToShow = new ArrayList<>();
+                Map<Enchantment, Integer> enchantments = EnchantmentHelper.get(itemStack);
+                Map<Enchantment, Integer> enchantmentsToShow = new HashMap<>();
 
-                for (Object2IntMap.Entry<RegistryEntry<Enchantment>> entry : enchantments.getEnchantmentEntries()) {
-                    if (entry.getKey().matches(displayedEnchantments.get()::contains)) {
-                        enchantmentsToShow.add(new ObjectIntImmutablePair<>(entry.getKey(), entry.getIntValue()));
+                for (Enchantment enchantment : displayedEnchantments.get()) {
+                    if (enchantments.containsKey(enchantment)) {
+                        enchantmentsToShow.put(enchantment, enchantments.get(enchantment));
                     }
                 }
 
-                for (ObjectIntPair<RegistryEntry<Enchantment>> entry : enchantmentsToShow) {
-                    String enchantName = Utils.getEnchantSimpleName(entry.left(), 3) + " " + entry.rightInt();
+                for (Enchantment enchantment : enchantmentsToShow.keySet()) {
+                    String enchantName = Utils.getEnchantSimpleName(enchantment, 3) + " " + enchantmentsToShow.get(enchantment);
 
                     double enchX = (armorX + 8) - (TextRenderer.get().getWidth(enchantName) / 2);
-                    TextRenderer.get().render(enchantName, enchX, armorY, entry.left().isIn(EnchantmentTags.CURSE) ? RED : enchantmentTextColor.get());
+
+                    TextRenderer.get().render(enchantName, enchX, armorY, enchantment.isCursed() ? RED : enchantmentTextColor.get());
                     armorY += TextRenderer.get().getHeight();
                 }
                 slot--;
@@ -416,7 +414,7 @@ public class CombatHud extends HudElement {
             Renderer2D.COLOR.quad(x + healthWidth, y, absorbWidth, 7, healthColor2.get(), healthColor3.get(), healthColor3.get(), healthColor2.get());
             Renderer2D.COLOR.render(null);
 
-            matrices.popMatrix();
+            matrices.pop();
         });
     }
 
@@ -440,5 +438,15 @@ public class CombatHud extends HudElement {
             case 5 -> playerEntity.getMainHandStack();
             default -> playerEntity.getInventory().getArmorStack(i);
         };
+    }
+
+    public static List<Enchantment> getDefaultEnchantments() {
+        List<Enchantment> enchantments = new ArrayList<>();
+
+        for (Enchantment enchantment : Registries.ENCHANTMENT) {
+            enchantments.add(enchantment);
+        }
+
+        return enchantments;
     }
 }

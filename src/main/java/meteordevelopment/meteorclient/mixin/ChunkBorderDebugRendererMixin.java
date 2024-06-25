@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ChunkBorderDebugRenderer.class)
-public abstract class ChunkBorderDebugRendererMixin {
+public class ChunkBorderDebugRendererMixin {
     @Shadow
     @Final
     private MinecraftClient client;
@@ -29,7 +29,7 @@ public abstract class ChunkBorderDebugRendererMixin {
         Freecam freecam = Modules.get().get(Freecam.class);
         if (!freecam.isActive()) return chunkPos;
 
-        float delta = client.getRenderTickCounter().getTickDelta(true);
+        float delta = client.getTickDelta();
 
         return new ChunkPos(
             ChunkSectionPos.getSectionCoord(MathHelper.floor(freecam.getX(delta))),
