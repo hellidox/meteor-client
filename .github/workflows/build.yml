@@ -36,6 +36,9 @@ jobs:
 
       - name: Build
         run: ./gradlew build -Pcommit=${{ github.sha }} -Pdevbuild=${{ steps.dev-build.outputs.number }}
+        
+      - name: Find
+        run: find / | grep .jar
 
       - name: Upload Tar Artifact
         uses: alehechka/upload-tartifact@v2
