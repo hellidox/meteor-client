@@ -43,5 +43,5 @@ jobs:
       - name: Upload Tar Artifact
         uses: alehechka/upload-tartifact@v2
         with:
-          path: builds
+          path:  /home/runner/work/meteor-client/meteor-client/build/libs/
             
